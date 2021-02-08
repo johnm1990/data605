@@ -1,0 +1,60 @@
+---
+title: "Homework#2"
+author: "John Mazon"
+date: "February 7"
+output: 
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, setup, include=FALSE}
+require(tidyverse)
+
+knitr::opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+```
+
+
+## Problem Set 2
+Here is the R code for an LU decomposition of a matrix.  It does not do row permutations, so it would encounter problems if a pivot is zero.  The approach here is to zero out components of the input matrix below the main diagonal by subtracting multiples of earlier rows.  For the first column, multiples of the first row are used (call these multipliers $l_{ij}$ where $i$ is the row and ${j}$ the column.  For the second column, multiples of the "reduced" second row are used ("reduced" here meaning that the first column entry has been zeroed out by addition of a mulitple of row 1).  The process continues until all entries below the diagonal are zeroed out.  The lower-diagonal matrix has 1s along the main diagonals and $-l_{ij}$ for $i > j$.
+
+```{r}
+# LU of square w/o row permutation
+
+LU <- function(A) {
+  nr <- dim(A)[1]
+  nc <- dim(A)[2]
+  L <- diag(nr)
+  for (i in 1:(nr - 1)) {
+    for (j in (i + 1):nr) {
+      L[j,i] <- A[j,i] / A[1,i]
+      A[j,] <- A[j,] - A[1,] * L[j,i]
+    }
+  }
+  return(list(U = A, L = L))
+}
+
+# Here's a small test case.
+
+A <- matrix(c(1, 0.5, 0.5, 1.0), nrow = 2)
+
+dcmp <- LU(A)
+
+print("Comparing the LU product and original A")
+dcmp$L %*% dcmp$U
+A
+
+print("Here are the L and U matrices:")
+dcmp$L
+dcmp$U
+```
+
+

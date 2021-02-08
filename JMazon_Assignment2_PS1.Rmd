@@ -1,0 +1,54 @@
+---
+title: "Homework#2"
+author: "John Mazon"
+date: "February 7"
+output: 
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, setup, include=FALSE}
+require(tidyverse)
+
+knitr::opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+```
+
+## Problem Set 1
+
+First demonstrate that $\mathbf{X^TX \ne XX^T}$ in general.  Let $\mathbf{x}$ be an $p$ by $q$ matrix where $p \ne q$.  By definition, \mathbf{X^TX} is a $p$ by $p$ matrix and $\mathbf{XX^T}$ is $q$ by $q$.  Given that $p \ne q$, these two matrices cannot be equal.
+
+Now the question is for what matrices is this relationship true.  The question states that it's true of identify matrices.  It is easy to see that it's true of all symmetric matrices $\mathbf{X}$ as well:
+
+$$\mathbf{X^TX=(X^T)^TX^T=XX^T}$$
+
+The question is all there other square matrices which satisfy the condition?  Under the assumption that $\mathbf{X^TX = XX^T}$, then the two products must share eigenvalues and eigenvectors.  Let $\mathbf(v)$ be an eigenvector of $\mathbf{X^TX}$ and let the matrix $\mathbf{V}$ be a matrix whose columns are the eigenvectors of $\mathbf{X^TX}$.  Then:
+
+$$\mathbf{X^TXv} = \lambda \mathbf{v}$$
+Multiplying both sides by $\mathbf{X} gives:
+
+$$\mathbf{XX^TXv} = \lambda \mathbf{Xv}$$
+
+which shows that $\mathbf{XV}$ are the eigenvectors of $\mathbf{XX^T}$ and that the two matrix products share eigenvalues.  But becuase they must also share eigenvalues, the following is true:
+
+$$\mathbf{XX^Tv} = \lambda \mathbf{v}$$
+
+Multiplying both sides by $\mathbf{X^T}$ gives:
+
+$$\mathbf{X^TTXX^Tv} = \lambda \mathbf{X^Tv}$$
+
+which shows that $\mathbf{X^TV}$ are the eigenvectors of $\mathbf{X^TX}$.  Because the two share eigenvectors:
+
+$$\mathbf{XV = X^TV}$$
+
+which implies $\mathbf{X^T=X}$, thus the relation holds for symmetric matrices.
+
+

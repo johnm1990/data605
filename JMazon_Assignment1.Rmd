@@ -1,0 +1,76 @@
+---
+title: "Homework#1"
+author: "John Mazon"
+date: "February 7"
+output: 
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, setup, include=FALSE}
+require(tidyverse)
+
+knitr::opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+```
+
+## Problem #1
+Create "dots" that plot initials, in this case J & M.
+
+```{r}
+# Make a J
+
+x1 = c(seq(0, 1, length.out = 500), rep(0.5, 1000), 0.25 + 0.25 * cos(seq(0, -pi, length.out = 500)))
+y1 = c(rep(1, 500), seq(1, -0.75, length.out = 1000), -0.75 + 0.25 * sin(seq(0, -pi, length.out = 500)))
+
+# Make an M
+
+x2 = c(rep(0, 500), seq(0, 1, length.out = 1000), rep(1, 500))
+y2 = c(seq(-1, 1, length.out = 500), seq(1, -1, length.out = 500), seq(-1, 1, length.out = 500), seq(1, -1, length.out = 500))
+
+# Put them together with a space between
+
+x <- c(x1 - 1.5, x2)
+y <- c(y1, y2)
+
+plot(x, y)
+```
+
+Now animate a sequence of matrix transforamtions of these letters.  This should start with an identity, transition to shear, then rotation and end with projection.
+
+```{r}
+# Matrix forms:
+# Identity
+# M <- matrix(c(1, 0, 0, 1), nrow = 2)
+# Shear
+# M <- matrix(c(1, 0, lambda, 1), nrow = 2)
+# Rotation
+# M <- matrix(c(cos(theta, -sin(theta), sin(theta), cos(theta))))
+# Projection
+# M <- matrix(c(1, 0, 0, beta))
+
+# Set up animation with 3 * n steps (starting with identity and morphing)
+n <- 50
+alpha <- c(rep(1, n), cos(seq(0, 2 * pi, length.out = n)), rep(1, n))
+beta <- c(rep(0, n), -sin(seq(0, 2 * pi, length.out = n)), rep(0, n))
+delta <- c(seq(0, 1, length.out = n), sin(seq(0, 2 * pi, length.out = n)), rep(0, n))
+gamma <- c(rep(1, n), cos(seq(0, 2 * pi, length.out = n)), seq(1, 0, length.out = n))
+
+z <- rbind(x - mean(x), y - mean(y))
+
+X11()
+for (i in 1:(3 * n)) {
+  Mz <- matrix(c(alpha[i], beta[i], delta[i], gamma[i]), nrow = 2) %*% z
+  plot(Mz[1,], Mz[2,], xlim = c(-3,3), ylim = c(-3, 3))
+}
+dev.off()
+```
+

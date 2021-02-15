@@ -1,0 +1,203 @@
+---
+title: "JMazon_Assignment3"
+author: "John Mazon"
+date: "2/14/2021"
+output: 
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, setup, include=FALSE}
+require(tidyverse)
+```
+
+## Problem Set #1
+### Question #1
+
+What is the rank of matrix A where:
+
+$$A = \left( \begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+-1 & 0 & 1 & 3 \\
+0 & 1 & -2 & 1\\
+5 & 4 & -2 & -3 \end{array}\right)$$
+
+To answer this, we perform gaussian elimination.  When in upper-diagonal form, the number of non-zero rows is the rank.
+
+I first target $A_{21}$ and $A_{41}$:
+
+$$\left( \begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+-1 & 0 & 1 & 3 \\
+0 & 1 & -2 & 1\\
+5 & 4 & -2 & -3 \end{array}\right) \rightarrow
+\left( \begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+0 & 2 & 4 & 7 \\
+0 & 1 & -2 & 1 \\
+0 & -6 & -17 & -22 \end{array}\right)$$
+
+Now $A_{32}$ and $A_{42}$:
+
+$$\left( \begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+0 & 2 & 4 & 7 \\
+0 & 1 & -2 & 1 \\
+0 & -6 & -17 & -22 \end{array}\right) \rightarrow
+\left( \begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+0 & 2 & 4 & 7 \\
+0 & 0 & 8 & 5\\
+0 & 0 & -5 & -1 \end{array}\right)$$
+
+And lastly $A_{43}$:
+
+$$\left( \begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+0 & 2 & 4 & 7 \\
+0 & 0 & 8 & 5\\
+0 & 0 & -5 & -1 \end{array}\right) \rightarrow
+\left( \begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+0 & 2 & 4 & 7 \\
+0 & 0 & 8 & 5\\
+0 & 0 & 0 & 17 \end{array}\right)$$
+
+Because no row is all zeroes, the rank of $A$ is 4.
+
+As a check using R, we can compute the eigenvalues.  The number of non-zero eigenvalues is the rank of A.
+
+```{r}
+eigenvalues <- eigen(matrix(c(1, -1, 0, 5, 2, 0, 1, 4, 3, 1, -2, -2, 4, 3, 1, -3), nrow = 4))$values
+
+print(paste("Number of non-zero eigenvalues (= rank(A)):", sum(abs(eigenvalues) > 1e-12)))
+```
+
+### Question #2
+The maximum rank of a $m$ by $n$ matrix is equal to the smaller of $m$ and $n$.  This is because $p$-dimensional space is spanned by $p$ independent vectors.  Any additional vectors would be linearly dependent and matrix rank is equal to the number of linearly independent row (or column) vectors.
+
+### Question #3
+The rank of matrix $B$ is 1.  This is because rows 2 and 3 are multiples of row 1. 
+
+## Problem Set #2
+### Question #1
+
+The characteristic equation is given by:
+
+$$det\left(\mathbf{A}-\lambda \mathbf{I}\right) = 0$$
+
+which for matrix A is:
+
+$$\left | \begin{array}{ccc}
+1 - \lambda & 2 & 3 \\
+0 & 4 - \lambda & 5 \\
+0 & 0 & 6 - \lambda \end{array}\right | = (1-\lambda)(4-\lambda)(6-\lambda) = 0$$
+
+This implies that the eigenvalues of $A$ are 1, 4 and 6--the roots of the characteristic equation.
+
+To compute the associated eigenvalues, we use the eigenvalue/vector equation:
+
+$$\mathbf{Ax}=\lambda\mathbf{x}$$
+
+For $\lambda = 1$ we have:
+
+$$\left ( \begin{array}{ccc}
+1  & 2 & 3 \\
+0 & 4 & 5 \\
+0 & 0 & 6 \end{array}\right )
+\left ( \begin{array}{c}
+x_1 \\
+x_2 \\
+x_3 \\ \end{array} \right ) = \left ( \begin{array}{c}
+x_1 \\
+x_2 \\
+x_3 \\ \end{array} \right )$$
+
+Because $A$ is already in reduced (row-echelon) form, we can solve immediately.  The last row implies that $x_3 = 0$.  Back-substituting into row 2 gives $x_2 = 0$.  Lastly, back-substituting into row 1 gives $x_1 = 1$, hence the first eigenvalue/vector pair is:
+
+$$\lambda = 1\text{ and }x= \left ( \begin{array}{c}
+1 \\
+0 \\
+0 \\ \end{array} \right )$$
+
+Likewise, when $\lambda = 4$, we find that:
+
+$$\left ( \begin{array}{ccc}
+1  & 2 & 3 \\
+0 & 4 & 5 \\
+0 & 0 & 6 \end{array}\right )
+\left ( \begin{array}{c}
+x_1 \\
+x_2 \\
+x_3 \\ \end{array} \right ) = \left ( \begin{array}{c}
+4x_1 \\
+4x_2 \\
+4x_3 \\ \end{array} \right )$$
+
+Row 3 implies that $x_3$ equals 0.  Row 2 this implies that $x_2$ is non-zero (choosing $x_2 = 0$ leads to a trivial result).  Lastly, row 1 implies:
+
+$$x_1 + 2x_2 = 4x_1$$
+$$2x_2 = 3x_1$$
+$$x_2 = \frac{3}{2}x_1$$
+
+Or that the second eigenvector (normalized to unit length) is:
+
+$$\lambda = 4\text{ and }x= \left ( \begin{array}{c}
+0.555 \\
+0.832 \\
+0 \\ \end{array} \right )$$
+
+Lastly, for $\lambda = 6$, we have:
+
+$$\left ( \begin{array}{ccc}
+1  & 2 & 3 \\
+0 & 4 & 5 \\
+0 & 0 & 6 \end{array}\right )
+\left ( \begin{array}{c}
+x_1 \\
+x_2 \\
+x_3 \\ \end{array} \right ) = \left ( \begin{array}{c}
+6x_1 \\
+6x_2 \\
+6x_3 \\ \end{array} \right )$$
+
+Row 3 tells us nothing about $x_3$, but choosing $x_3 = 0$ leads to a trivial result.  So we will let $x_3 = 1$.
+
+Then row 2 implies:
+
+$$4x_2 + 5x_3 = 6x_2$$
+$$-2x_2=-5$$
+$$x_2 = 5/2$$
+
+Plugging these results into row 1 gives:
+
+$$x_1 + 5 + 3 = 6x_1$$
+$$5x_1=8$$
+$$x_1 = 8/5$$
+Thus the final eigenvalue/vector pair is:
+
+$$\lambda = 6\text{ and }x= \left ( \begin{array}{c}
+8/5 \\
+5/2 \\
+1 \\ \end{array} \right )$$
+
+Normalizing $\mathbf{x}$ to unit length, we find:
+
+$$\lambda = 6\text{ and }x= \left ( \begin{array}{c}
+0.511 \\
+0.798 \\
+0.319 \\ \end{array} \right )$$
+
+As a quick check using R:
+
+```{r}
+eigen(matrix(c(1,0,0,2,4,0,3,5,6), nrow = 3))
+```
+

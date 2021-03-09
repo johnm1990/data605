@@ -1,0 +1,122 @@
+---
+title: "Assignment 6"
+author: "John Mazon"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(tidyverse)
+```
+
+1. A bag contains 5 green and 7 red jellybeans. How many ways can 5 jellybeans be withdrawn from the bag so that the number of green ones withdrawn will be less than 2?
+
+The answer is six.  If we are pulling 5 jellybeans and can have no more than 1 green jellybean, then either all 5 are red or 4 are red and 1 is green.  Having all five be red is 1 way.  If one is green, it could be the first, second, ... fifth pulled, yielding 5 ways.  Combined we have 6.
+
+2. A certain congressional committee consists of 14 senators and 13 representatives. How many ways can a subcommittee of 5 be formed if at least 4 of the members must be representatives?
+
+In this case, the identities of the senators and representatives matters.  The subcommittee will have either 4 or 5 representatives.  We will get the answer by examining the two possibilities separately.
+
+5 representatives: here we have the combinations of 13 representatives chosen 5 at a time, which the combination of 13 objects chosen 5 at a time:
+
+$$\frac{13!}{5!(13-5)!}=1287$$
+4 representatives and 1 senator: here we have the combinations of 13 objects chosen 4 at a time multiplied by the number of senators we could choose (14):
+
+$$\frac{14(13!)}{4!(13-4)!}=10010$$
+Summing the two, we find that there are 11297 possible different subcommittees.
+
+3. If a coin is tossed 5 times, and then a standard six-sided die is rolled 2 times, and finally a group of three cards are drawn from a standard deck of 52 cards without replacement, how many different outcomes are possible?
+
+Here I will assume the different outcomes are the number of heads in 5 tosses, the value of the two rolls of the die, and the combinations of the three cards.
+
+For the coin toss, there are 6 possible outcomes (all heads to no heads).  For the die rolls, there are 6 * 6 = 36 possible outcomes, and for the 3 cars, there are:
+
+$$\frac{52!}{3!(52-3)!}=22100$$
+combinations.  Combining the three, we have:
+
+$$(6)(36)(22100) = 4773600$$
+
+possible outcomes.
+
+4. 3 cards are drawn from a standard deck without replacement. What is the probability that at least one of the cards drawn is a 3? Express your answer as a fraction or a decimal number rounded to four decimal places.
+
+Computing the probability of the compliment (no 3s) is easier.  We have the probability of not drawing a three in each of the three cards:
+
+$$\frac{48}{52}\frac{47}{52}\frac{46}{52}=0.7381$$
+
+Answer: 1 - 0.7381 = 0.2619
+
+5.  Lorenzo is picking out some movies to rent, and he is primarily interested in documentaries and mysteries. He has narrowed down his selections to 17 documentaries and 14 mysteries.
+
+Step 1. How many different combinations of 5 movies can he rent?
+
+This is the combinations of 31 (= 17 + 14) movies chosen 5 at a time:
+
+$$\frac{31!}{5!(31-5)!}=169911$$
+
+Step 2. How many different combinations of 5 movies can he rent if he wants at least one mystery?
+
+Here we remove the combinations in which none of the 5 was a mystery:
+
+$$\frac{17!}{5!(17-5)!}=6188$$
+
+Thus there are 169911 - 6188 = 163723 ways of choosing 5 movies where at least one is a mystery.
+
+6. In choosing what music to play at a charity fund raising event, Cory needs to have an equal number of symphonies from Brahms, Haydn, and Mendelssohn. If he is setting up a schedule of the 9 symphonies to be played, and he has 4 Brahms, 104 Haydn, and 17 Mendelssohn symphonies from which to choose, how many different schedules are possible? Express your answer in scientific notation rounding to the hundredths place.
+
+9 symphonies with equal numbers from 3 composers implies three of each.  Assuming that the order of the program doesn't matter, then the number is the product of the combinations of 3 from each of the 3 composers:
+
+$$\frac{4!}{3!(4-3)!}\cdot \frac{104!}{3!(104-3)!}  \cdot \frac{17!}{3!(17-3)! $$
+This equals $4.95\cdot10^8$ programs.
+
+7. An English teacher needs to pick 13 books to put on his reading list for the next school year, and he needs to plan the order in which they should be read. He has narrowed down his choices to 6 novels, 6 plays, 7 poetry books, and 5 nonfiction books.
+
+Step 1. If he wants to include no more than 4 nonfiction books, how many different reading schedules are possible? Express your answer in scientific notation rounding to the hundredths place.
+
+In this question, order does matter.  To get the answer, we will first examine the permutations of 24 books chosen 13 at a time.  This will include permutations with 5 nonfiction books.
+
+The number is 24!/11! = $1.55 \cdot 10^{16}$.  The number of permutations of the books when all 5 non-fiction books are chosen is more difficult to compute.  We get it by first computing the  permutations of 19 non-fiction books chosen 8 at a time (19!/11! = $3.05 \cdot 10^9$) and multiplying it by the different ways of inserting 5 books into 13 slots.  The latter is the permutations of 5 objects times the combinations of 13 objects chosen 5 at a time:
+
+$$5! \cdot \frac{13!}{5!(13-5)!}= 154440$$
+
+Thus the number of schedules with all 5 non-fiction books is: 154440 * $3.05 \cdot 10^9 = 4.71\cdot 10^{14}$.  Subtracting this off leaves:
+
+$$1.55 \cdot 10^{16} - 4.71\cdot 10^{14} = 1.50\cdot 10^{16}$$
+Step 2. If he wants to include all 6 plays, how many different reading schedules are possible? Express your answer in scientific notation rounding to the hundredths place.
+
+I will assume he no longer cares about the number of non-fiction books included.  The answer follows the logic for the number of schedules including all 5 non-fiction books.  We get it by first computing the  permutations of 18 non-plays chosen 7 at a time (18!/11!) and multiplying it by the different ways of inserting 6 books into 13 slots.
+
+$$6! \cdot \frac{13!}{6!(13-6)!}= 1235520$$
+So the final answer is:
+
+$$\frac{18!}{11!} \cdot \frac{13!}{(13-6)!}= 1.98 \cdot 10^{14}$$
+
+8. Zane is planting trees along his driveway, and he has 5 sycamores and 5 cypress trees to plant in one row. What is the probability that he randomly plants the trees so that all 5 sycamores are next to each other and all 5 cypress trees are next to each other? Express your answer as a fraction or a decimal number rounded to four decimal places.
+
+This is equal to the number of ways of having 5 of each next to each other (2: five sycamores first or five cypresses first) divided by the total number of possible different plantings.  Here it doesn't matter which sycamore (or which cypress) fills a slot.  
+
+To compute the latter, consider the combinations of 10 objects 5 at a time (the slots that, say, sycamores are planted in):
+
+$$\frac{10}{5!(10-5)!}=252$$
+So the answer is 2 / 252 = 0.0079.
+
+9. If you draw a queen or lower from a standard deck of cards, I will pay you $4. If not, you
+pay me $16. (Aces are considered the highest card in the deck.)
+
+Step 1. Find the expected value of the proposition. Round your answer to two decimal
+places. Losses must be expressed as negative values. 
+
+There are 8 cards higher than a queen in a standard deck of cards and 44 equal or lower.  Thus the probability of drawing a queen or lower is 44/52 and the compliment is 8/52.  Thus the expected payout is:
+
+$$4 \cdot \frac{44}{52} - 16 \cdot \frac{8}{52} = 0.92$$
+
+Step 2. If you played this game 833 times how much would you expect to win or lose? Round your answer to two decimal places. Losses must be expressed as negative values.
+
+We take the expected outcome in a single trial and multiply by 833.
+
+$$833 \cdot 0.92=768.92$$
+
+

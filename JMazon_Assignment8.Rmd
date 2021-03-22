@@ -1,0 +1,68 @@
+---
+title: "Assignment 8"
+author: "John Mazon"
+date: "3/21/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+
+#1  Chebyshev's inequality:
+
+P(|X – mu| >= k*s) <= 1/k^2
+
+Only the case k > 1 is useful. When k <= 1 the right-hand side 1/k^2 >=1 and the inequality is trivial as all probabilities are ≤ 1.
+
+
+mu = 10
+s^2 = 100/3
+Let co = k*s => k = co/s
+
+
+```{r}
+
+mu = 10
+s = sqrt(100/3)
+co = c(2,5,9,20)
+k = co/s
+k
+upper_bound = ifelse (k > 1, 1/k^2, 1)
+upper_bound
+
+
+
+```
+## 10 The minimum of exponential random variables X1, ,,, Xn each of which has mean μ. Show that Y = min(X1, ,,, Xn) distributed exponentially with mean μ/n
+
+Exponential: X ~ Exp(m) = e^(-mx) where m = the decay parameter
+
+mean μ = 1/m => m = 1/μ
+
+
+## 11 Company buys 100 lightbulbs each of which has an exponential lifetime 1000 hours. What is expected lifetime for the first of this to burn out?
+
+μ = 1000 hours
+With n = 100 μ/n = 10 hours
+
+
+## 14. X1 and X2 independent exponentially distributed random variables with parameter m. Show that Z = X1 - X2 has density 
+
+...
+Theorem: The distribution of the difference of two independent exponential random variables, with population meansα1andα2respectively, has a Laplace distribution with param-etersα1andα2.
+
+
+
+![Q14](https://raw.githubusercontent.com/johnm1990/data605/main/14.png)
+
+
+
+
+
+

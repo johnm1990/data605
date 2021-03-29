@@ -1,0 +1,98 @@
+---
+title: "Assignment 9 - DATA 605"
+author: "John Mazon"
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, setup, include=FALSE}
+require(tidyverse)
+```
+
+### Q1 Pilsdorf Beer Company Stock Price
+
+Let the stock price on day $n$ of the year be $Y_n$.  The differences, $X_n = Y_{n+1}-Y_n$ are observed to be independent and normally distributed $N(\mu = 0, \sigma^2 = 1/4)$.  If $Y_1=100$, predict the likelihood of $Y_{365} \ge 100$.  Repeat for values of 110 and 120.
+
+I begin by noting that $X_2+X_1=Y_3-Y_1$.  By extension:
+
+$$X_{364}+X_{363}+\cdots+X_1=Y_{365}-Y_1=Y_{365}-100$$
+
+Thus, $Y_{365}$ can be expressed as:
+
+$$Y_{365} = X_{364}+X_{363}+\cdots+X_1+100$$
+
+The expected value of $Y_{365}$ follows from:
+
+$$\mathbb{E}(Y_{365}) = \mathbb{E}\left[\sum_{i=1}^{364}X_i\right] + 100$$
+$$\mathbb{E}(Y_{365}) = \sum_{i=1}^{364}\mathbb{E}\left[X_i\right] + 100$$
+
+$$\mathbb{E}(Y_{365}) = 100$$
+Because the $X_i$ are independent, the variance of $Y_{365}$ is the sum of variances of the $X_i$:
+
+$$\mathbb{E}\left[(Y_{365}-100)^2\right]=\frac{364}{4}=91$$
+Hence $Y_{365}$ is normally distributed with $\mu=100$ and $\sigma^2=91$.
+
+By definition, $P\left(Y_{365}\ge100\right)=0.5$.  For values of 110 and 120, we use R's pnorm function.
+
+
+
+```{r}
+pge110 <- round(1 - pnorm(110, 100, 91), 4)
+pge120 <- round(1 - pnorm(120, 100, 91), 4)
+```
+
+We find $P\left(Y_{365}\ge110\right)=$ `r pge110` and $P\left(Y_{365}\ge120\right)=$ `r pge120`.
+
+## Q2 
+Find the mean and variance of the binomial distribution from it's moment-generating function.
+
+The MGF for the binomial distribution is:
+
+$$M(t)=(q+pe^t)^n$$
+
+To get the mean and variance, we compute the first two derivatives of $M(t)$:
+
+$$M'(t)=npe^t(q+pe^t)^{n-1}$$
+$$M''(t)=n(n-1)p^2e^{2t}(q+pe^t)^{n-2}+npe^t(q+pe^t)^{n-1}$$
+The mean (first non-centered moment) is obtained by evaluating $M'(0)$:
+
+$$\mu=M'(0)=np(q+p)^{n-1}=np(1-p+p)^{n-1}=np$$
+
+The variance is obtained from:
+
+$$\sigma^2=M''(0)-\mu^2=n(n-1)p^2+np-n^2p^2$$
+$$\sigma^2=-np^2+np=np(1-p)=npq$$
+
+## Q3 
+
+Find the mean and variance of the exponential distribution from it's moment-generating function.
+
+The MGF for the exponential distribution is:
+
+$$M(t)=\frac{\lambda}{\lambda-t}\text{ for }t<\lambda$$
+Taking the first and second derivatives yields:
+
+$$M'(t)=\frac{\lambda}{(\lambda-t)^2}$$
+$$M''(t)=\frac{2\lambda}{(\lambda-t)^3}$$
+Thus the mean is:
+
+$$\mu=M'(0)=\frac{1}{\lambda}$$
+and the variance:
+
+$$\sigma^2=M''(0)-\mu^2=\frac{2\lambda}{(\lambda)^3}-\frac{1}{\lambda}=\frac{1}{\lambda^2}$$
+$$\sigma^2=\frac{1}{\lambda^2}$$
+
+
+
+
+
+
+

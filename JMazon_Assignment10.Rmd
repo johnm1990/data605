@@ -1,0 +1,87 @@
+---
+title: 'DATA 605 - Homework #10'
+author: "John Mazon"
+date: "4/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chapter 11 - Markov Chains
+
+
+Smith is in jail and has 1 dollar; he can get out on bail if he has 8 dollars.A guard agrees to make a series of bets with him. If Smith bets A dollars,he wins A dollars with probability .4 and loses A dollars with probability .6.Find the probability that he wins 8 dollars before losing all of his money if
+
+(a) he bets 1 dollar each time (timid strategy).
+
+(b) he bets, each time, as much as possible but not more than necessary to bring his fortune up to 8 dollars (bold strategy).
+
+(c) Which strategy gives Smith the better chance of getting out of jail?
+
+
+## Timid Strategy
+If we use timid play, then this means Smith’s fortune is a Markov chain
+(Xn, n = 0, 1, . . .) which is representing the evolution of Smith’s money
+
+
+![Q1](https://raw.githubusercontent.com/johnm1990/data605/main/assignment10_1.png)
+
+```{r}
+w <- 0.4
+x <- 1-w
+y <- 1
+z <- 8
+Prob_timid <- round((1 - (x/w)^y) / ( 1 - (x/w)^z),4)
+
+print(Prob_timid)
+```
+We see about little over a 2% chance Smith will win these bets, with this strategy.
+
+If we use simulation to calculate this one
+```{r}
+a = 0.4
+b = 0.6
+c = b/a
+
+for (i in seq(1, 7 , 1)){
+  print ((1-c^i)/(1-c^8))
+}
+
+```
+
+## Bold Strategy
+![Q2](https://raw.githubusercontent.com/johnm1990/data605/main/assignment10_2.PNG)
+Smiths fortune is a Markov chain with transition matrix P
+Absorption matrix
+```{r}
+dbinom(3,3,0.4) 
+```
+
+```{r}
+m <- matrix(c(1,0,0,0,0,0.6,0,0.4,0,0,0.6,0,0,0.4,0,0.6,0,0,0,0.4,0,0,0,0,1), ncol=5,nrow=5, byrow = TRUE)
+m
+
+f <- matrix(c(0,1,0,0,0), ncol=5,nrow = 1,byrow = TRUE)
+f
+
+u <- f%*%m
+u
+
+c <- u%*%m
+c
+
+k <- c%*%m
+k
+
+b <- k%*%m
+b
+```
+
+Since the Smith bets A dollars and will lose or gain A dollars, and Smith bets his entire money each time until $8. Smith must win each time or lose. If Smith wins sequence is: 1,2,4,8. He starts with 1 dollar and must win 3 bets in a row at p=0.4 p=0.4
+Smith probability of winning $8 with bold strategy is 0.064
+
+
+## Conclusion
+Bold Strategy would be the best. It gives Smith a better chance to get out of jail.

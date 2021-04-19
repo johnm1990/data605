@@ -1,0 +1,107 @@
+---
+title: 'DATA 605 - Homework #11'
+author: "John Mazon"
+date: "4/18/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Objective
+
+Using the cars dataset in R, build a linear model for stopping distance as a function of speed and replicate the analysis of your textbook chapter 3 (visualization, quality evaluation of the model, and residual analysis).
+The data give the speed of cars and the distances taken to stop. Note that the data were recorded in the 1920s. 
+
+A data frame with 50 observations on 2 variables.
+[,1] 	speed 	numeric 	Speed (mph)
+[,2] 	dist 	numeric 	Stopping distance (ft)
+
+### Analysis
+
+```{r}
+summary(cars)
+
+
+```
+
+Here we see the plot of two variables. We witness that stopping distance is the response var and Speed is the explanatory var
+
+```{r}
+plot(cars$speed, cars$dist, xlab='Speed (mph)', ylab='Stopping Distance (ft)', 
+     main='Stopping Distance vs. Speed')
+
+## here we will build the linear model and continue to find the best fitting line.
+
+cars_lm <- lm(cars$dist ~ cars$speed)
+cars_lm
+
+
+plot(cars$speed, cars$dist, xlab='Speed (mph)', ylab='Stopping Distance (ft)', 
+     main='Stopping Distance vs. Speed')
+abline(cars_lm)
+
+##we witness a correlation between two variables, but now we must evaluate the linear model
+
+summary(cars_lm)
+```
+
+
+We see that in fact median value of the residuals is very close to zero and Quarts. and min/max values are about the same. 
+Now it's evident that standard error of the speed variable is more than 9 times smaller than the corresponding coefficient.
+We assume not a lot of variability in this coefficient. 
+
+Seeing the other side, the difference between the intercept estimate and standard error is less significant. This means there may be more variability. 
+The speed coefficient is highly significant. The intercept coefficient is less significant, but it is still relevant depending on the confidence interval desired.
+At last we see, R2 explains about 65.11% of the data’s variation.
+
+```{r}
+plot(cars_lm$fitted.values, cars_lm$residuals, xlab='Fitted Values', ylab='Residuals')
+abline(0,0)
+```
+
+We can say that the outlier values do not show the same variance of the residuals; we are assuming similar variance of residuals.
+
+```{r}
+qqnorm(cars_lm$residuals)
+qqline(cars_lm$residuals)
+```
+
+
+the normal Q-Q plot of the residuals appears to follow the theoretical line. Residuals are distributed normally.
+
+
+### Conclusion
+
+We see the LM depicts are clear understanding of this data. There appears to be small curvature in the main plot and in the residuals plot
+
+```{r}
+speed <- cars$speed
+speed2 <- speed^2
+dist <- cars$dist
+  
+cars_qm <- lm(dist ~ speed + speed2)
+summary(cars_qm)
+```
+
+```{r}
+speedvalues <- seq(0, 25, 0.1)
+predictedcounts <- predict(cars_qm,list(speed=speedvalues, speed2=speedvalues^2))
+
+plot(speed, dist, pch=16, xlab='Speed (mph)', ylab='Stopping Distance (ft)')
+lines(speedvalues, predictedcounts)
+```
+
+
+```{r}
+plot(cars_qm$fitted.values, cars_qm$residuals, xlab='Fitted Values', ylab='Residuals')
+abline(0,0)
+
+qqnorm(cars_qm$residuals)
+qqline(cars_qm$residuals)
+
+```
+

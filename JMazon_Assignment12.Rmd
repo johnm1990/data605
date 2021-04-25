@@ -1,0 +1,103 @@
+---
+title: "Week 12, Regression Analysis in R 2"
+author: "John Mazon"
+class : "Data 605"
+date: "4/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+url <- 'https://raw.githubusercontent.com/johnm1990/data605/main/who.csv'
+who <- read.csv(url)
+head(who)
+
+```
+
+
+## Questions
+
+1.Provide a scatterplot of LifeExp~TotExp, and run simple linear regression.  Do not transform the variables.  Provide and interpret the F statistics, R^2, standard error,and p-values only.  Discuss whether the assumptions of simple linear regression met.
+```{r}
+plot(who$TotExp, who$LifeExp, xlab = "Total Expenditures", ylab = "Life Expectancy")
+```
+## simple linear regression
+```{r}
+who_simple.lm <- lm(LifeExp ~ TotExp, data = who)
+
+summary(who_simple.lm)
+```
+We see that the F-statistic is 65.26 with a p-value of 7.714e-14 (test for overall regression model). The p-value is very small, which suggests that we can reject the null hypothesis (regression model is same as intercept-only model) and accept the alternative that this simple linear regression model provides a better fit than the intercept-only model. The R2=0.2577 value is not strong, which tells us that the model only accounts for 25.77% of the variation in the data.
+
+
+
+2.Raise life expectancy to the 4.6 power (i.e., LifeExp^4.6).  Raise total expenditures to the 0.06 power (nearly a log transform, TotExp^.06). Plot LifeExp^4.6  as a function of TotExp^.06, and re-run the simple regression model using the transformed variables.  Provide and interpret the F statistics, R^2, standard error, and p-values.   Which model is "better?"
+
+```{r}
+# Create new column with LifeExp^4.6 values
+who$LifeExp4.6 <- (who$LifeExp)^4.6
+# Create new column with TotExp^4.6 values
+who$TotExp0.06 <- (who$TotExp)^0.06
+# Plot total expenditures vs life expectancy for who data set
+plot(who$TotExp0.06, who$LifeExp4.6, xlab = "Total Expenditures ^ 0.06", ylab = "Life Expectancy ^ 4.6")
+```
+### rerun simplar LR
+```{r}
+who_transformed.lm <- lm(LifeExp4.6 ~ TotExp0.06, data = who)
+
+```
+interpret the F statistics, R^2, standard error, and p-values
+
+```{r}
+summary(who_transformed.lm)
+```
+
+The F-statistic for the transformed model we see is 507.7 (this is same degrees of freedom as model from 1.) So it's much better vs. the the previous model. The p-value is even better. In the transformed model the R2=0.7298, which is a lot better than the previous model (25.77%). As you can see, the transformed model is better than the previous one.
+
+
+
+3.Using the results from 3, forecast life expectancy when TotExp^.06 =1.5.  Then forecast life expectancy when TotExp^.06=2.5.  
+This can be done with a generic function that can handle both forecaste by receiving appropriate paramtet ‘TotExp’.
+LifeExp=−736527910+620060216∗TotExp0.06
+
+```{r}
+tr <- function(totexp) 
+  {
+  (-736527910 + (620060216 * totexp))^(1/4.6)
+}
+
+tr(1.5)
+
+tr(2.5)
+```
+
+4.Build the following multiple regression model and interpret the F Statistics, R^2, standard error, and p-values.  How good is the model?LifeExp = b0+b1 x PropMd + b2 x TotExp  +b3 x PropMD x TotExp
+LifeExp=b0+b1∗PropMd+b2∗TotExp+b3∗PropMD∗TotExp
+```{r}
+lm_fit <- lm(who$LifeExp ~ who$PropMD + who$TotExp + who$PropMD*who$TotExp)
+summary(lm_fit)
+
+```
+
+F-statistic with a P-value < 0.05 is a a statistically significant predictor of evaluation score.
+The Multiple R-squared and adjusted R-squared is 34%-35% of what the data fits.
+The F-Statistic of 34.49 with a relatively small p-value shows that the currect model is better than the model with one less predictor.
+The R2 value of .357 means the model explains 35.7% of the data which is not a good fit.
+The Adjusted R2 is more accurate by filtering out the noise but with a slightly lower value of .347.
+The Standard Errors are good for the intercept, PropMD& TotExp, but not for (TotExp)(PropMD)
+
+The Residuals look like they have a normal distribution of about zero.
+
+
+
+5.  Forecast LifeExp when PropMD=.03 and TotExp = 14.  Does this forecast seem realistic?  Why or why not?
+```{r}
+PropMD = 0.03
+TotExp = 14
+LifeExp =  (6.277*10) + (1.497*10^3)*PropMD + (7.233*10^-5)*TotExp - (6.026*10^-3) *PropMD*TotExp
+LifeExp
+```
+A Life Expectancy of 107 is not feasible today

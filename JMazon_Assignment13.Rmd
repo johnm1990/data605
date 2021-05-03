@@ -1,0 +1,72 @@
+---
+title: "Assignment 13 - Week 13 Univariate & Multivariate Calculus "
+author: "John Mazon"
+date: "5/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question #1
+
+Use integration by substitution to solve the integral below.
+
+![](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment13_Q1.PNG)
+
+
+
+
+## Question #2
+Biologists are treating a pond contaminated with bacteria.  The level of contamination is changing at a rate of dNdt = 3150t4 220 bacteria per cubic centimeter per day, where t is the number of days since treatment began.  Find a function N(t) to estimate the level of contamination if the level after 1 day was 6530 bacteria per cubic centimeter.
+
+![](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment13_QT2.PNG)
+
+## Question #3
+Find the total area of the red rectangles in the figure below, where the equation of the line is  f (x) = 2x-9
+![](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment13_Q3.PNG)
+```{r}
+Area <- function(x) {2*(x)-9}
+integrate(Area, lower = 4.5, upper = 8.5)
+```
+
+## Question #4
+Find the area of the region bounded by the graphs of the given equations.y = x2-2x-2,  y = x + 2. Enter your answer below
+
+```{r}
+curve(x^2 -2*x-2, lwd = 2, xlim=c(-5, 5))
+curve(x+2, lwd = 2, xlim=c(-5, 5), add = TRUE)
+
+```
+
+```{r}
+#Find area in-build function
+f1 = function(x) {x + 2}
+f2 = function(x) {x^2 -2*x -2}
+
+#Find the difference between areas under the curve
+area1 <- integrate(f1, -1, 4)
+area2 <- integrate(f2, -1, 4)
+area <- round((area1$value - area2$value),4)
+print(area)
+```
+
+## Question #5
+A beauty supply store expects to sell 110 flat irons during the next year.  It costs $3.75 to store one flat iron for one year.  There is a fixed cost of $8.25 for each order.  Find the lot size and the number of orders per year that will minimize inventory costs.
+![](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment13_Q5t.PNG)
+
+The store will need to order 22 units 5 times through out the year to achieve 110 sales at the minimal inventory cost.
+
+## Question #6
+Use integration by parts to solve the integral below.
+![](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment13_Q6t.PNG)
+
+
+## Question #7
+Determine whether f (x) is a probability density function on the interval 1, e6.  If not, determine the value of the definite integral.
+![](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment13_Q7t.PNG)
+
+
+
+

@@ -1,0 +1,65 @@
+---
+title: "JMazon_Assignment14"
+author: "John Mazon"
+date: "5/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### IS 605 FUNDAMENTALS OF COMPUTATIONAL MATHEMATICS - ASSIGNMENT 14 - TAYLOR SERIES
+
+For each function, only consider its valid ranges as indicated in the notes when you arecomputing the Taylor Series expansion. Please submit your assignment as a R-Markdowndocument.
+
+library(pracma)
+
+### 1)
+## $f(x) = \frac{1}{(1-x)}$
+
+$$ f(x) = \frac{1}{1-x} = \sum_{n=0}^{\infty} x^n$$
+![Q1](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment14_Q1.PNG)
+
+$$ f(x) = 1 + x + x^2 + x^3 + x^4 + O(x^5)$$
+
+```{r}
+library(pracma)
+
+f <- function(x) 1/(1-x)
+p <- taylor(f, 0, 4)
+p
+```
+
+
+### 2)
+## $f(x) = e^x$
+
+$$ f(x) = e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!} $$
+
+$$ f(x) = 1 + x + \frac{x^2}{2} + \frac{x^3}{6} + \frac{x^4}{24} + O(x^5)$$
+![Q2](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment14_Q2.PNG)
+```{r}
+library(pracma)
+
+f <- function(x) exp(x)
+p <- taylor(f, 0, 4)
+p
+```
+
+### 3)
+## $f(x) = ln(1 + x)$
+
+$$ f(x) = ln(1 + x) = \sum_{n=0}^{\infty} (-1)^{n+1}\frac{x^n}{n}$$
+
+$$ f(x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \frac{x^4}{4} + O(x^5)$$
+![Q3](https://raw.githubusercontent.com/johnm1990/data605/main/JMazon_Assignment14_Q3.PNG)
+```{r}
+library(pracma)
+
+f <- function(x) log(1+x)
+p <- taylor(f, 0, 4)
+p
+```
+
+

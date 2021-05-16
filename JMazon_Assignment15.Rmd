@@ -1,0 +1,158 @@
+---
+title: "JMazon_Assignment15"
+author: "John Mazon"
+date: "5/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question #1
+Find the equation of the regression line for the given points.  Round any final values to the nearest hundredth, if necessary.( 5.6, 8.8 ), ( 6.3, 12.4 ), ( 7, 14.8 ), ( 7.7, 18.2 ), ( 8.4, 20.8 )
+
+```{r}
+x <- c(5.6, 6.3, 7, 7.7, 8.4 )
+y <- c(8.8, 12.4, 14.8, 18.2, 20.8)
+df <- data.frame(cbind(x, y))
+
+xy.lm <- lm(y ~ x, data = df)
+xy.lm
+```
+
+```{r}
+plot(df$x, df$y)
+abline(xy.lm, col="green")
+```
+
+## y=−14.80+4.26x
+
+## Question #2
+Find all local maxima, local minima, and saddle points for the function given below.  Write your answer(s) in the form (x, y, z).  Separate multiple points with a comma.f (x, y) = 24x 6xy2 8y3
+```
+1. Start by finding the first derivative of the function with respect to x (fx) and y (fy) -
+fx = 24 - 6y2
+fy = 12xy - 24y2
+2. Find the crtical points (may be a minimum, maximum or saddle point) for fx and fx -
+solving for y
+0 = 24 - 6y2
+y = sqrt(24/6)
+y = +/- 2
+solving for x where y = 2
+0 = -12(2)x - 24(2)2
+0 = -24x - 96
+x = 96/-24 = -4
+solving for x where y = -2
+0 = -12(-2)x - 24(-2)2
+0 = 24x - 96
+x = 96/24 = 4
+Critical points for this function are (2,-4) and (-2,4)
+3. Find the possible concativitity of the crtical points by solving for the second derivative fxx and fxx as well as mixed derivative fxy -
+fxx = 0 (no info provided about concativity, possible saddle point)
+fyy = -12x - 48y
+for critical point (2,-4)
+0 = -12(2) - 48(-4) = + (upward concativity - possible minimum)
+for critical point (-2-,4)
+0 = -12(-2) - 48(4) = - (downward concativity - possible maximum)
+fxy = -12y
+for critical point (2,-4)
+fxy = -12(-4) = 48
+for critical point (2,4)
+fxy = -12(4) = -48
+4. Perform the second partial derivative test to determine the maximum (H>0), minimum (H also > 0) and saddle point (H < 0)
+H = fxx * fyy - (fxy)2
+for critical point (2,-4)
+0 * fyy - (48)2
+= - (negative) at (2,-4) conclusion: saddle point
+for critical point (-2,-4)
+0 * fyy - (-48)2
+= (negative) at (-2,4) conclusion: saddle point
+```
+
+## Question #3
+A grocery store sells two brands of a product, the "house" brand and a "name" brand.  The manager estimates that if she sells the "house" brand for x dollars and the "name" brand for y dollars, she will be able to sell 81  21x + 17y units of the "house" brand and 40 + 11x 23y units of the "name" brand.3. 
+
+### Step 1. Find the revenue function R (x, y)
+
+```
+To find pending revenue we multiply the amount of units to sell times the dollar amount.
+
+Therefore the revenue function is like so:
+
+x(81−21x+17y)+y(40+11x−23y)
+
+Simplfied we get:
+
+−21x2−23y2+28xy+81x+40y
+```
+
+### Step 2. What is the revenue if she sells the "house" brand for $2.30 and the "name" brand for $4.10?
+```
+##Step 1. Find the revenue function R(x,y)
+
+Revenue = (Units Sold) x (Sales Price)
+R(x,y)=(x∗(81−21x+17y))+(y∗(40+11x−23y))
+R(x,y)=81x−21x2+17xy+40y+11xy−23y2
+R(x,y)=−21x2−23y2+81x+40y+28xy
+
+```
+
+
+```{r}
+ ##Step 2. What is the revenue if she sells the “house” brand for $2.30 and the “name” brand for $4.10?
+  
+  revenue <- function(x, y) {
+  return(-21*(x^2) - 23*(y^2) + 81*x + 40*y + 28*x*y)
+}
+
+revenue(2.30, 4.10)
+
+```
+
+## The revenue is: $116.62
+
+## Question #4
+A company has a plant in Los Angeles and a plant in Denver.  The firm is committed to produce a total of 96 units of a product each week.  The total weekly cost is given by C(x, y) = 16x2 + 16y2 + 7x + 25y + 700,  where x is the number of units produced in Los Angeles and y is the number of units produced in Denver.  How many units should be produced in each plant to minimize the total weekly cost?
+
+```
+x+y=96=total units to produce each weeky=96−x
+
+Given y=96−x
+we can substitute 96−x
+
+every place we see y in or original function and turn this into a univariate problem.
+
+C(x,y)C1(x)=16x2+16y2+7x+25y+700=16x2+16(96−x)2+7x+25(96−x)+700=16x2+1536−32x+16x2+7x+2400−25x+700=13x2−50x+4636
+
+Find the derivative of C1(x)
+
+C′1(x)=23x−50
+
+Find the critical points:
+
+C′1(x)=23x−5023xx=0=50=75
+
+Since y=96−x
+, when x=75, then y=21.
+
+```
+## We see that the company needs to produce 75 units in LA and 21 units in Denver each week in order to meet their production commitment and minimize costs.
+
+
+
+## Question #5
+Evaluate the double integral on the given region.
+
+Write your answer in exact form without decimals
+![Q1](https://raw.githubusercontent.com/johnm1990/data605/main/discbrd15-1.PNG)
+
+```{r}
+ans <- 1/24*(exp(22)-exp(28)-exp(38)+exp(44))
+print(paste0("Exact form without decimals: ", format(ans, scientific = F)))
+```
+
+
+
+
+

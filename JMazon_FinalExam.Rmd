@@ -1,0 +1,248 @@
+---
+title: "Final Exam"
+author: "John Mazon"
+date: "5/22/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+```{r, setup, include=FALSE}
+require(tidyverse)
+require(car)
+require(corrplot)
+require(ggcorrplot)
+require(GGally)
+require(fastDummies)
+require(caret)
+require(forecast)
+knitr::opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+
+pjr <- function(..., digits = 5) {
+  args = list(...)
+  r <- lapply(args, FUN = function(x) {ifelse(is.numeric(x), round(x, digits), x)})
+  t <- trimws(as.character(unlist(r)), which = "right")
+  print(str_flatten(t, collapse = " "), quote = FALSE)
+  invisible()
+}
+```
+
+### Problem #1
+Using R, generate a random variable X that has 10,000 random uniform numbers from 1 to N, where N can be any number of your choosing greater than or equal to 6. Then generate a random variable Y that has 10,000 random
+normal numbers with a mean of μ=σ=(N+1)/2.
+
+```{r}
+X <- runif(10000, min = 1, max = 11)
+Y <- rnorm(10000, mean = 6, sd = 6)
+```
+
+Probability. Calculate as a minimum the below probabilities a through c. Assume the small letter "x" is estimated as the median of the X variable, and the small letter "y" is estimated as the 1st quartile of the Y variable. Interpret the meaning of all probabilities.
+
+a. P(X>x | X>y) b. P(X>x, Y>y) c. P(X<x | X>y)
+
+```{r}
+x <- median(X)
+y <- quantile(Y, 0.25)
+
+a <- mean(X[X > y] > x)
+b <- mean(X > x & Y > y)
+c <- mean(X[X > y] < x)
+```
+
+(a) is the conditional probability that X is greater than x given that X is greater than y.  
+(b) is the joint probability that X > x and Y > y, i.e., the likelihood that both are true.
+(c) is the conditional probability that X is less than x given that X is greater than y.
+
+Investigate whether P(X>x and Y>y)=P(X>x)P(Y>y) by building a table and evaluating the marginal and
+joint probabilities.
+
+```{r}
+events <- tibble(`X > x` = X > x, `Y > y` = Y > y)
+ctab <- xtabs(~ `X > x` + `Y > y`, events)
+ctab
+pjr("")
+
+# Compute marginal, joint and product probabilities.
+fx <- mean(X > x)
+fy <- mean(Y > y)
+fxy <- mean(X > x & Y > y)
+
+p <- fx * fy
+pjr("Joint probability:", b)
+pjr("Product of marginals:", fxy)
+```
+
+Check to see if independence holds by using Fisher’s Exact Test and the Chi Square Test. What is the difference between the two? Which is most appropriate?
+
+```{r}
+chisq.test(ctab)
+fisher.test(ctab)
+```
+
+The tests result in (numerically) identical p-values, well above the 0.05 threshold needed to reject the null hypothesis, leading us to conclude that X and Y are independent.  Given that this is a two-by-two contingency table with integer entries, the Fisher test is exact and to be preferred over the chi-square test which is only asymptotically correct and requires Yates' continuity correction.
+
+### Problem 2
+Descriptive and Inferential Statistics. Provide univariate descriptive statistics and appropriate plots for the training data set. Provide a scatterplot matrix for at least two of the independent variables and the dependent variable. Derive a correlation matrix for any three quantitative variables in the dataset. Test the hypotheses that the correlations between each pairwise set of variables is 0 and provide an 80% confidence interval. Discuss the meaning of your analysis. Would you be worried about familywise error? Why or why not?
+
+```{r}
+train <- read_csv("train.csv")
+test <- read_csv("test.csv")
+Filter(is.numeric, train) %>% summary
+Filter(is.character, train) %>% map(function(x) table(x))
+
+subMat <- train %>% dplyr::select(SalePrice, `1stFlrSF`, LotArea, GarageArea, GrLivArea) 
+ggpairs(subMat, progress = FALSE)
+ggcorrplot(cor(subMat))
+
+subMat <- train %>% dplyr::select(SalePrice, `1stFlrSF`, LotArea)
+cmt <- cor.mtest(subMat, conf.level = 0.8)
+rownames(cmt$p) <- c("Sale Price", "1st Floor SF", "Lot Area")
+colnames(cmt$p) <- c("Sale Price", "1st Floor SF", "Lot Area")
+pjr("Correlation p-values:")
+cmt$p
+
+cor.test(~ SalePrice + `1stFlrSF`, data = subMat, conf.level = 0.8)
+cor.test(~ SalePrice + LotArea, data = subMat, conf.level = 0.8)
+cor.test(~ LotArea + `1stFlrSF`, data = subMat, conf.level = 0.8)
+```
+
+Family-wise error is a minor concern given that we are performing just 3 separate tests and the p-values are all well below 0.05. If we applied a Bonferroni Correction, the test results would be unchanged.
+
+Linear Algebra and Correlation. Invert your correlation matrix from above. (This is known as the precision matrix and contains variance inflation factors on the diagonal.) Multiply the correlation matrix by the precision matrix, and then multiply the precision matrix by the correlation matrix. Conduct LU decomposition on the matrix.
+
+```{r}
+cmat <- cor(subMat)
+prec <- solve(cmat)
+pjr("Precision matrix:")
+prec
+prod1 <- cmat %*% prec # Should be an identity (numerical precision)
+pjr("Product of correlation matrix and precision matrix:")
+prod1
+prod2 <- prec %*% cmat
+pjr("Product of precision matrix and correlation matrix:")
+prod2
+pjr("The two should be equal (symmetric, full-rank terms).  Are they?")
+all.equal(prod1, prod2)
+
+require(Matrix)
+LUD <- lu(prec)
+pjr("Results of the LU decomposition of the precision matrix:")
+expand(LUD)
+```
+
+Calculus-Based Probability & Statistics. Many times, it makes sense to fit a closed form distribution to data. Select a variable in the Kaggle.com training dataset that is skewed to the right, shift it so that the minimum value is absolutely above zero if necessary. Then load the MASS package and run fitdistr to fit an exponential probability density function. (See https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/fitdistr.html ). 
+
+Find the optimal value of λ for this distribution, and then take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, λ)). Plot a histogram and compare it with a histogram of your original variable. 
+
+Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF). Also generate a 95% confidence interval from the empirical data, assuming normality. Finally, provide the empirical 5th percentile and 95th percentile of the data. Discuss.
+
+```{r}
+require(MASS)
+
+pft <- fitdistr(train$GrLivArea, densfun = "exponential")
+lambda <- pft$estimate
+#pjr("Estimated lambda (rate parameter) for GrLivArea:", lambda)
+
+samp <- rexp(1000, lambda)
+gtbl <- tibble(Which = c(rep("Exponential", 1000), rep("Observations", nrow(train))),
+               Value = c(samp, train$GrLivArea))
+
+ggplot(gtbl, aes(Value)) + geom_histogram() + facet_wrap(vars(Which), scales = "free_y")
+
+q5_95 <- qexp(p = c(0.05, 0.95), lambda)
+pjr("5 and 95% quantiles from CDF:", q5_95[1], q5_95[2])
+
+ci95 <- mean(train$GrLivArea) + qnorm(0.975) * sd(train$GrLivArea) * c(-1, 1)
+ci90 <- mean(train$GrLivArea) + qnorm(0.95) * sd(train$GrLivArea) * c(-1, 1)
+pjr("95% Confidence interval assuming normality:", ci95[1], ci95[2])
+pjr("90% Confidence interval assuming normality:", ci90[1], ci90[2])
+e5_95 <- quantile(train$GrLivArea, c(0.05, 0.95))
+pjr("5 and 95% quantile from empirical data:", e5_95[1], e5_95[2])
+```
+
+I decided to fit an exponential distribution to the GrLivArea variable which is moderately right skewed. The 5% and 95% quantiles from the fitted theoretical exponential distribution are considerably wider than those of the empirical distribution.  This implies that the right skew of the theoretical distribution is greater and that it extends to zero with final probability whereas there are no homes with zero living area (minimum value of 334 in the training set).  Treating the empirical distribution as normal and examining the 90% CI (in addition to the requested 95% CI), we find that the lower bound is less than the 5% quantile and the upper bound is less than the 95% quantile.  Both results are attributable to the non-symmetric nature of the empirical distribution.
+
+Modeling. Build some type of multiple regression model and Provide your complete model summary and results with analysis.
+
+I decided to take the "kitchen sink" approach and consider all training set variables are possible features.  I did this in two parts.  In the first, I used base R's step function to iteratively add features (starting with just the intercept) on the basis of greatest AIC decrease.  The process stops when remaining features would increase AIC if added to the model.  To allow greater control over categorical features, I created dummy variables prior to invoking lm().  I also removed features with greater than 10% missing values.
+
+The resulting model was then re-tuned using the caret package and 10-fold CV and feature selection using the MASS package stepAIC function.  The intent here is to avoid overfitting the training set by requiring consistency across the 10-fold cross-validation evaluation of model AIC.  The resulting model includes 74 features in addition to the intercept.  The RMSE is 24900 on a mean sale price of nearly 187000 with an adjusted R-squared of 0.8945.  
+
+```{r}
+# Recode character "NA" as NA
+train <- train %>% mutate_if(is.character, ~na_if(.x, "NA"))
+test <- test %>% mutate_if(is.character, ~na_if(.x, "NA"))
+
+# Count NAs by column
+NAs <- map_int(train, ~sum(is.na(.x)))
+
+# Remove columns with more than 10% NA
+thresh <- floor(0.1 * nrow(train))
+train <- train[, NAs < thresh]
+test <- test[, NAs[-ncol(train)] < thresh]
+
+# Remove remaining NAs
+train <- train %>% drop_na()
+
+# Create dummy variables out of the factor variables
+train <- train %>% mutate_if(is.character, ~as.factor(.x))
+test <- test %>% mutate_if(is.character, ~as.factor(.x))
+train_set <- dummy_columns(train, remove_selected_columns = TRUE)
+test_set <- dummy_columns(test, remove_selected_columns = TRUE)
+
+# Remove columns that are in train that aren't in test and vice versa.  But be careful to
+# keep SalePrice.
+salePrice <- train_set$SalePrice
+common_names <- intersect(names(train_set), names(test_set))
+train_set <- dplyr::select(train_set, all_of(common_names))
+test_set <- dplyr::select(test_set, all_of(common_names))
+train_set$SalePrice <- salePrice
+
+# A few dummy variables have names that cause problems later.  I rename them here
+train_set <- train_set %>% rename(RoofMatl_Tar_Grv = `RoofMatl_Tar&Grv`, 
+                                  MSZoning_C_all = `MSZoning_C (all)`,
+                                  Exterior2nd_Wd_Shng = `Exterior2nd_Wd Shng`,
+                                  SecondFlrSF = `2ndFlrSF`)
+
+test_set <- test_set %>% rename(RoofMatl_Tar_Grv = `RoofMatl_Tar&Grv`, 
+                                MSZoning_C_all = `MSZoning_C (all)`,
+                                Exterior2nd_Wd_Shng = `Exterior2nd_Wd Shng`,
+                                SecondFlrSF = `2ndFlrSF`)
+
+# Forward step AIC feature selection
+min.model = lm(SalePrice ~ 1, data = train_set)
+max.model = formula(lm(SalePrice ~ ., data = train_set))
+fwd.model = step(min.model, direction = "forward", scope = max.model, trace = 0)
+
+ff <- formula(fwd.model)
+
+# Now use 10-fold CV and MASS' StepAIC function to tune the final model
+train.control <- trainControl(method = "cv", number = 10)
+
+caret_mix <- train(form = ff, 
+                  data = train_set, 
+                  method = "lmStepAIC", 
+                  trControl = train.control,
+                  trace = 0)
+
+summary(caret_mix$finalModel)
+```
+
+I finish the regression analysis with a residual plot.  There remains some curvature in the residuals with regard to fitted values, implying under-prediction of sale price at both the upper and lower ends of the range.  
+
+```{r}
+residualPlot(caret_mix$finalModel)
+```
+
+Now that we have the model, let's use it to predict sale prices of the test set.  We don't have values to compare to, so I plot the histogram of predictions instead.
+
+```{r}
+test_sale_price <- predict(caret_mix$finalModel, newdata = test_set)
+ggplot(tibble(`Predicted Sale Price` = test_sale_price), aes(`Predicted Sale Price`)) + geom_histogram(bins = 30) +
+  labs(y = "Frequency", title = "Test Set Sale Price Predictions")
+```
+
+
